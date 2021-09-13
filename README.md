@@ -12,7 +12,7 @@
     ```
     cd detectron2-deepsort-pytorch
     pip install -r requirements.txt
-    pip install -e detectron2
+    pip install -e detectron2/
     pip install git+git://github.com/facebookresearch/fvcore.git@1f3825f82b622409ea4145d192dbd36a64e91d49
     pip install cython
     pip install git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI
