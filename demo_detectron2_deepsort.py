@@ -19,7 +19,7 @@ class Detector(object):
             cv2.resizeWindow("test", args.display_width, args.display_height)
 
         self.vdo = cv2.VideoCapture()
-        self.detectron2 = Detectron2(use_cuda)
+        self.detectron2 = Detectron2(detectron2_checkpoint=args.detectron2_checkpoint, use_cuda=use_cuda)
 
         self.deepsort = DeepSort(args.deepsort_checkpoint, use_cuda=use_cuda)
 
@@ -47,7 +47,7 @@ class Detector(object):
             # im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
             bbox_xcycwh, cls_conf, cls_ids = self.detectron2.detect(im)
 
-            if bbox_xcycwh is not None:
+            if bbox_xcycwh:
                 # select class person
                 mask = cls_ids == 0
 
@@ -77,6 +77,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("VIDEO_PATH", type=str)
     parser.add_argument("--deepsort_checkpoint", type=str, default="deep_sort/deep/checkpoint/ckpt.t7")
+    parser.add_argument("--detectron2_checkpoint", type=str, default=None)
     parser.add_argument("--max_dist", type=float, default=0.3)
     parser.add_argument("--ignore_display", dest="display", action="store_false")
     parser.add_argument("--display_width", type=int, default=800)

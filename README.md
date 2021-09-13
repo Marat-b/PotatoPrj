@@ -21,7 +21,7 @@
 4. Download checkpoint `ckpt.t7` from here: [Google Drive](https://drive.google.com/drive/folders/1xhG0kRH1EX5B9_Iz8gQJb7UNnn_riXi6)
 and place into `deep_sort/deep/checkpoint/`.
 
-5. Run the demo: `ython demo_detectron2_deepsort.py demo-input.avi --ignore_display --save_path demo-output.avi --use_cuda False`
+5. Run the demo: `python demo_detectron2_deepsort.py demo-input.avi --ignore_display --save_path demo-output.avi --use_cuda False`
 
 ### Notes:
 1. Try out different detectron2 models: Change the configs in `___init__` of `detectron2_detection.py`
