@@ -33,6 +33,7 @@ class Extractor(object):
         def _resize(im, size):
             return cv2.resize(im.astype(np.float32)/255., size)
 
+        # print(f'feature_extrator  _preprocess im_crops={im_crops.shape}')
         im_batch = torch.cat([self.norm(_resize(im, self.size)).unsqueeze(0) for im in im_crops], dim=0).float()
         return im_batch
 
@@ -41,13 +42,15 @@ class Extractor(object):
         im_batch = self._preprocess(im_crops)
         with torch.no_grad():
             im_batch = im_batch.to(self.device)
+
             features = self.net(im_batch)
+        # print(f'features.shape={features.cpu().numpy().shape}')
         return features.cpu().numpy()
 
 
 if __name__ == '__main__':
-    img = cv2.imread("demo.jpg")[:,:,(2,1,0)]
-    extr = Extractor("checkpoint/ckpt.t7")
+    img = cv2.imread("../../images/2.jpg") # [:,:,(2,1,0)]
+    extr = Extractor("../../weights/ckpt.t7")
     feature = extr(img)
     print(feature.shape)
 

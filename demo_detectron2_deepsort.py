@@ -47,7 +47,7 @@ class Detector(object):
             # im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
             bbox_xcycwh, cls_conf, cls_ids = self.detectron2.detect(im)
 
-            if bbox_xcycwh:
+            if len(bbox_xcycwh)>0:
                 # select class person
                 mask = cls_ids == 0
 
