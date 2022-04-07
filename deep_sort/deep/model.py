@@ -97,7 +97,8 @@ class Net(nn.Module):
 
 if __name__ == '__main__':
     net = Net()
-    x = torch.randn(4,3,128,64)
+    # x = torch.randn(4,3,128,64)
+    x = torch.randn(1, 256, 2, 2)
     y = net(x)
     print(f'y={y.shape}')
     # import ipdb; ipdb.set_trace()

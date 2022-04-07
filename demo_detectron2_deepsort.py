@@ -4,6 +4,7 @@ import time
 from distutils.util import strtobool
 
 import cv2
+from tqdm import tqdm
 
 from deep_sort import DeepSort
 from detectron2_detection import Detectron2
@@ -29,9 +30,10 @@ class Detector(object):
         self.vdo.open(self.args.VIDEO_PATH)
         self.im_width = int(self.vdo.get(cv2.CAP_PROP_FRAME_WIDTH))
         self.im_height = int(self.vdo.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        self.num_frames = int(self.vdo.get(cv2.CAP_PROP_FRAME_COUNT))
 
         if self.args.save_path:
-            fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+            fourcc = cv2.VideoWriter_fourcc(*'MP4V')
             self.output = cv2.VideoWriter(self.args.save_path, fourcc, 20, (self.im_width, self.im_height))
 
         assert self.vdo.isOpened()
@@ -42,8 +44,10 @@ class Detector(object):
             print(exc_type, exc_value, exc_traceback)
 
     def detect(self):
-        while self.vdo.grab():
-            start = time.time()
+        for i in tqdm(range(self.num_frames)):
+            if not self.vdo.grab():
+                continue
+            # start = time.time()
             _, im = self.vdo.retrieve()
             # im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
             bbox_xcycwh, cls_conf, cls_ids = self.detectron2.detect(im)
@@ -62,8 +66,8 @@ class Detector(object):
                     identities = outputs[:, -1]
                     im = draw_bboxes(im, bbox_xyxy, identities)
 
-            end = time.time()
-            print("time: {}s, fps: {}".format(end - start, 1 / (end - start)))
+            # end = time.time()
+            # print("time: {}s, fps: {}".format(end - start, 1 / (end - start)))
 
             if self.args.display:
                 cv2.imshow("test", im)
@@ -92,3 +96,4 @@ if __name__ == "__main__":
     args = parse_args()
     with Detector(args) as det:
         det.detect()
+    print(' *************  END ***********************')
