@@ -11,14 +11,16 @@ from detectron2.engine import DefaultPredictor
 
 class Detectron2:
 
-    def __init__(self, detectron2_checkpoint=None, use_cuda=True):
+    def __init__(self, detectron2_checkpoint=None, num_classes=1, score_thresh_test=0.7, use_cuda=True):
         self.cfg = get_cfg()
         # self.cfg.merge_from_file("detectron2/configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml")
         self.cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"))
-        self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = 3
-        self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5  # set threshold for this model
-        self.cfg.MODEL.WEIGHTS = detectron2_checkpoint if detectron2_checkpoint else "detectron2://COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl"
-        if not use_cuda: self.cfg.MODEL.DEVICE='cpu'
+        self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = num_classes
+        self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = score_thresh_test  # set threshold for this model
+        self.cfg.MODEL.WEIGHTS = detectron2_checkpoint if detectron2_checkpoint else \
+            "detectron2://COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl"
+        if not use_cuda:
+            self.cfg.MODEL.DEVICE = 'cpu'
         self.predictor = DefaultPredictor(self.cfg)
 
     def bbox(self, img):

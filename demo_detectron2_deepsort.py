@@ -19,7 +19,8 @@ class Detector(object):
             cv2.resizeWindow("test", args.display_width, args.display_height)
 
         self.vdo = cv2.VideoCapture()
-        self.detectron2 = Detectron2(detectron2_checkpoint=args.detectron2_checkpoint, use_cuda=use_cuda)
+        self.detectron2 = Detectron2(detectron2_checkpoint=args.detectron2_checkpoint, num_classes=3,
+                                     use_cuda=use_cuda)
 
         self.deepsort = DeepSort(args.deepsort_checkpoint, use_cuda=use_cuda)
 
