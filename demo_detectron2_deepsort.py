@@ -14,6 +14,7 @@ from util import draw_bboxes
 class Detector(object):
     def __init__(self, args):
         self.args = args
+        self.class_names = ['strong', 'sick', 'stone']
         use_cuda = bool(strtobool(self.args.use_cuda))
         if args.display:
             cv2.namedWindow("test", cv2.WINDOW_NORMAL)
@@ -60,11 +61,12 @@ class Detector(object):
                 bbox_xcycwh[:, 3:] *= 1.2
 
                 cls_conf = cls_conf[mask]
-                outputs = self.deepsort.update(bbox_xcycwh, cls_conf, im)
+                outputs = self.deepsort.update(bbox_xcycwh, cls_conf, im, cls_ids)
                 if len(outputs) > 0:
                     bbox_xyxy = outputs[:, :4]
-                    identities = outputs[:, -1]
-                    im = draw_bboxes(im, bbox_xyxy, identities)
+                    identities = outputs[:, -2]
+                    cls_ids = outputs[:, -1]
+                    im = draw_bboxes(im, bbox_xyxy, identities, cls_ids=cls_ids, class_names=self.class_names)
 
             # end = time.time()
             # print("time: {}s, fps: {}".format(end - start, 1 / (end - start)))
