@@ -38,7 +38,7 @@ def draw_bbox(img, box, cls_name, identity=None, offset=(0, 0)):
     return img
 
 
-def draw_bboxes(img, bbox, identities=None, offset=(0, 0), cls_ids=None, class_names=None):
+def draw_bboxes(img, bbox, identities=None, offset=(0, 0), cls_id=None, class_names=None):
     for i, box in enumerate(bbox):
         x1, y1, x2, y2 = [int(i) for i in box]
         x1 += offset[0]
@@ -47,7 +47,7 @@ def draw_bboxes(img, bbox, identities=None, offset=(0, 0), cls_ids=None, class_n
         y2 += offset[1]
         # box text and bar
         id = int(identities[i]) if identities is not None else 0
-        class_id = int(cls_ids[i]) if cls_ids is not None else 0
+        class_id = int(cls_id[i]) if cls_id is not None else 0
         color = COLORS_10[id % len(COLORS_10)]
         if class_names is not None:
             label = '{}-{:d}'.format(class_names[class_id], id)

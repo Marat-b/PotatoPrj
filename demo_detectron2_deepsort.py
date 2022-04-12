@@ -21,8 +21,10 @@ class Detector(object):
             cv2.resizeWindow("test", args.display_width, args.display_height)
 
         self.vdo = cv2.VideoCapture()
-        self.detectron2 = Detectron2(detectron2_checkpoint=args.detectron2_checkpoint, num_classes=3,
-                                     use_cuda=use_cuda)
+        self.detectron2 = Detectron2(
+            detectron2_checkpoint=args.detectron2_checkpoint, num_classes=3,
+            use_cuda=use_cuda
+            )
 
         self.deepsort = DeepSort(args.deepsort_checkpoint, use_cuda=use_cuda)
 
@@ -52,8 +54,9 @@ class Detector(object):
             _, im = self.vdo.retrieve()
             # im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
             bbox_xcycwh, cls_conf, cls_ids = self.detectron2.detect(im)
+            # print(f'cls_ids={cls_ids}')
 
-            if len(bbox_xcycwh)>0:
+            if len(bbox_xcycwh) > 0:
                 # select class person
                 mask = cls_ids == 0
 
@@ -62,11 +65,12 @@ class Detector(object):
 
                 cls_conf = cls_conf[mask]
                 outputs = self.deepsort.update(bbox_xcycwh, cls_conf, im, cls_ids)
+                # print(f'outputs={outputs}')
                 if len(outputs) > 0:
                     bbox_xyxy = outputs[:, :4]
                     identities = outputs[:, -2]
-                    cls_ids = outputs[:, -1]
-                    im = draw_bboxes(im, bbox_xyxy, identities, cls_ids=cls_ids, class_names=self.class_names)
+                    cls_id = outputs[:, -1]
+                    im = draw_bboxes(im, bbox_xyxy, identities, cls_id=cls_id, class_names=self.class_names)
 
             # end = time.time()
             # print("time: {}s, fps: {}".format(end - start, 1 / (end - start)))
