@@ -38,7 +38,8 @@ def draw_bbox(img, box, cls_name, identity=None, offset=(0, 0)):
     return img
 
 
-def draw_bboxes(img, bbox, identities=None, offset=(0, 0), cls_id=None, class_names=None):
+def draw_bboxes(img, bbox, identities=None, offset=(0, 0), list_id=None, cls_ids=None,  class_names=None):
+    print(f'draw_bboxes len(bbox)={len(bbox)}')
     for i, box in enumerate(bbox):
         x1, y1, x2, y2 = [int(i) for i in box]
         x1 += offset[0]
@@ -47,12 +48,12 @@ def draw_bboxes(img, bbox, identities=None, offset=(0, 0), cls_id=None, class_na
         y2 += offset[1]
         # box text and bar
         id = int(identities[i]) if identities is not None else 0
-        class_id = int(cls_id[i]) if cls_id is not None else 0
+        class_id = int(list_id[i]) if list_id is not None else 0
         color = COLORS_10[id % len(COLORS_10)]
         if class_names is not None:
             label = '{}-{:d}'.format(class_names[class_id], id)
         else:
-            label = '{}-{:d}'.format(class_id, id)
+            label = '{}-{:d}'.format(cls_ids, id)
         t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN, 2, 2)[0]
         cv2.rectangle(img, (x1, y1), (x2, y2), color, 3)
         cv2.rectangle(img, (x1, y1), (x1 + t_size[0] + 3, y1 + t_size[1] + 4), color, -1)

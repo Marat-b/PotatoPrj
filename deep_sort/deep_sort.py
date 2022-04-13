@@ -26,11 +26,10 @@ class DeepSort(object):
         # generate detections
         features = self._get_features(bbox_xywh, ori_img)
         bbox_tlwh = self._xywh_to_tlwh(bbox_xywh)
-        detections = [Detection(bbox_tlwh[i], conf, features[i], cls_id) for i, (conf, cls_id) in enumerate(
-            zip(
-                confidences,
-                cls_ids
-                )
+        detections = [Detection(bbox_tlwh[i], conf, features[i], i) for i, conf in enumerate(
+
+                confidences
+
             ) if conf > self.min_confidence]
 
         # run on non-maximum supression

@@ -53,8 +53,9 @@ class Detector(object):
             # start = time.time()
             _, im = self.vdo.retrieve()
             # im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
-            bbox_xcycwh, cls_conf, cls_ids = self.detectron2.detect(im)
-            # print(f'cls_ids={cls_ids}')
+            bbox_xcycwh, cls_conf, cls_ids, masks = self.detectron2.detect(im)
+            print(f'len(cls_ids)={len(cls_ids)}, len(cls_conf)={len(cls_conf)}, len(masks)={len(masks)}')
+            print(f'masks={masks}')
 
             if len(bbox_xcycwh) > 0:
                 # select class person
@@ -69,8 +70,10 @@ class Detector(object):
                 if len(outputs) > 0:
                     bbox_xyxy = outputs[:, :4]
                     identities = outputs[:, -2]
-                    cls_id = outputs[:, -1]
-                    im = draw_bboxes(im, bbox_xyxy, identities, cls_id=cls_id, class_names=self.class_names)
+                    list_id = outputs[:, -1]
+                    list_id.sort()
+                    print(f'len(list_id)={len(list_id)}, list_id={list_id}')
+                    im = draw_bboxes(im, bbox_xyxy, identities, list_id=list_id, cls_ids=cls_ids)
 
             # end = time.time()
             # print("time: {}s, fps: {}".format(end - start, 1 / (end - start)))
