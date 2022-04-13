@@ -26,11 +26,12 @@ class Detection(object):
 
     """
 
-    def __init__(self, tlwh, confidence, feature, cls_id):
+    def __init__(self, tlwh, confidence, feature, cls_id, mask):
         self.tlwh = np.asarray(tlwh, dtype=np.float)
         self.confidence = float(confidence)
         self.feature = np.asarray(feature, dtype=np.float32)
         self._cls_id = cls_id
+        self._mask = mask
 
     def to_tlbr(self):
         """Convert bounding box to format `(min x, min y, max x, max y)`, i.e.,
@@ -52,3 +53,7 @@ class Detection(object):
     @property
     def cls_id(self):
         return self._cls_id
+
+    @property
+    def mask(self):
+        return self._mask

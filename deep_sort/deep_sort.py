@@ -21,16 +21,19 @@ class DeepSort(object):
         metric = NearestNeighborDistanceMetric("cosine", max_cosine_distance, nn_budget)
         self.tracker = Tracker(metric)
 
-    def update(self, bbox_xywh, confidences, ori_img, cls_ids):
+    def update(self, bbox_xywh, confidences, ori_img, cls_ids, masks):
         self.height, self.width = ori_img.shape[:2]
         # generate detections
         features = self._get_features(bbox_xywh, ori_img)
         bbox_tlwh = self._xywh_to_tlwh(bbox_xywh)
-        detections = [Detection(bbox_tlwh[i], conf, features[i], i) for i, conf in enumerate(
+        detections = [Detection(bbox_tlwh[i], conf, features[i], cls_id, mask) for i, (conf, cls_id, mask) in enumerate(
+            zip(
+                confidences,
+                cls_ids,
+                masks
+            )
 
-                confidences
-
-            ) if conf > self.min_confidence]
+        ) if conf > self.min_confidence]
 
         # run on non-maximum supression
         boxes = np.array([d.tlwh for d in detections])
@@ -51,7 +54,11 @@ class DeepSort(object):
             x1, y1, x2, y2 = self._tlwh_to_xyxy(box)
             track_id = track.track_id
             cls_id = track.cls_id
-            outputs.append(np.array([x1, y1, x2, y2, track_id, cls_id], dtype=np.int))
+            mask = track.mask
+            # print(f'update cls_id={cls_id}')
+            # print(f'update mask={mask}')
+            # outputs.append(np.array([x1, y1, x2, y2, track_id, cls_id, mask], dtype=np.int))
+            outputs.append([x1, y1, x2, y2, track_id, cls_id, mask])
         if len(outputs) > 0:
             outputs = np.stack(outputs, axis=0)
         return outputs

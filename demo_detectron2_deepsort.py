@@ -55,7 +55,7 @@ class Detector(object):
             # im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
             bbox_xcycwh, cls_conf, cls_ids, masks = self.detectron2.detect(im)
             print(f'len(cls_ids)={len(cls_ids)}, len(cls_conf)={len(cls_conf)}, len(masks)={len(masks)}')
-            print(f'masks={masks}')
+            # print(f'masks={masks}')
 
             if len(bbox_xcycwh) > 0:
                 # select class person
@@ -65,15 +65,17 @@ class Detector(object):
                 bbox_xcycwh[:, 3:] *= 1.2
 
                 cls_conf = cls_conf[mask]
-                outputs = self.deepsort.update(bbox_xcycwh, cls_conf, im, cls_ids)
+                outputs = self.deepsort.update(bbox_xcycwh, cls_conf, im, cls_ids, masks)
                 # print(f'outputs={outputs}')
                 if len(outputs) > 0:
                     bbox_xyxy = outputs[:, :4]
-                    identities = outputs[:, -2]
-                    list_id = outputs[:, -1]
-                    list_id.sort()
-                    print(f'len(list_id)={len(list_id)}, list_id={list_id}')
-                    im = draw_bboxes(im, bbox_xyxy, identities, list_id=list_id, cls_ids=cls_ids)
+                    identities = outputs[:, -3]
+                    cls_id = outputs[:, -2]
+                    msk = outputs[:, -1]
+                    # cls_id.sort()
+                    print(f'len(cls_id)={len(cls_id)}, cls_id={cls_id}')
+                    print(f'msk={msk}')
+                    im = draw_bboxes(im, bbox_xyxy, identities, cls_id=cls_id, class_names=self.class_names)
 
             # end = time.time()
             # print("time: {}s, fps: {}".format(end - start, 1 / (end - start)))

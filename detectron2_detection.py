@@ -36,6 +36,8 @@ class Detectron2:
         classes = outputs["instances"].pred_classes.cpu().numpy()
         scores = outputs["instances"].scores.cpu().numpy()
         pr_masks = outputs["instances"].pred_masks.cpu().numpy()
+        pr_masks = pr_masks.astype(np.uint8)
+        pr_masks[pr_masks > 0] = 255
 
         bbox_xcycwh, cls_conf, cls_ids, masks = [], [], [], []
 
