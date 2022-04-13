@@ -8,7 +8,8 @@ from tqdm import tqdm
 
 from deep_sort import DeepSort
 from detectron2_detection import Detectron2
-from util import draw_bboxes
+from funcz import DrawAreaRect2
+from util import cv2_imshow, draw_bboxes
 
 
 class Detector(object):
@@ -56,6 +57,9 @@ class Detector(object):
             bbox_xcycwh, cls_conf, cls_ids, masks = self.detectron2.detect(im)
             print(f'len(cls_ids)={len(cls_ids)}, len(cls_conf)={len(cls_conf)}, len(masks)={len(masks)}')
             # print(f'masks={masks}')
+            # for mask in masks:
+                # cv2_imshow(mask)
+                # show_area(mask)
 
             if len(bbox_xcycwh) > 0:
                 # select class person
@@ -74,8 +78,9 @@ class Detector(object):
                     msk = outputs[:, -1]
                     # cls_id.sort()
                     print(f'len(cls_id)={len(cls_id)}, cls_id={cls_id}')
-                    print(f'msk={msk}')
-                    im = draw_bboxes(im, bbox_xyxy, identities, cls_id=cls_id, class_names=self.class_names)
+                    # print(f'msk={msk}')
+                    im = draw_bboxes(im, bbox_xyxy, identities, cls_id=cls_id, masks=msk, class_names=self.class_names)
+
 
             # end = time.time()
             # print("time: {}s, fps: {}".format(end - start, 1 / (end - start)))

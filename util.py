@@ -1,5 +1,9 @@
 import numpy as np
 import cv2
+import matplotlib.pyplot as plt
+
+from funcz import show_area
+from measurement import Measurement
 
 COLORS_10 = [(144, 238, 144), (178, 34, 34), (221, 160, 221), (0, 255, 0), (0, 128, 0), (210, 105, 30), (220, 20, 60),
              (192, 192, 192), (255, 228, 196), (50, 205, 50), (139, 0, 139), (100, 149, 237), (138, 43, 226),
@@ -38,8 +42,9 @@ def draw_bbox(img, box, cls_name, identity=None, offset=(0, 0)):
     return img
 
 
-def draw_bboxes(img, bbox, identities=None, offset=(0, 0), cls_id=None,  class_names=None):
+def draw_bboxes(img, bbox, identities=None, offset=(0, 0), cls_id=None, masks=None,  class_names=None):
     print(f'draw_bboxes len(bbox)={len(bbox)}')
+    measurement = Measurement(720, 33, 0.8)
     for i, box in enumerate(bbox):
         x1, y1, x2, y2 = [int(i) for i in box]
         x1 += offset[0]
@@ -49,9 +54,13 @@ def draw_bboxes(img, bbox, identities=None, offset=(0, 0), cls_id=None,  class_n
         # box text and bar
         id = int(identities[i]) if identities is not None else 0
         class_id = int(cls_id[i]) if cls_id is not None else 0
+        mask = masks[i]
+        width = float('{:.4f}'.format(measurement.get_width_meter(mask)))
+        print(f'draw_bboxes width={width}')
+        # print(f'{str(i)}th mask={mask}')
         color = COLORS_10[id % len(COLORS_10)]
         if class_names is not None:
-            label = '{}-{:d}'.format(class_names[class_id], id)
+            label = '{}-{:d} w={}'.format(class_names[class_id], id, str(width))
         else:
             label = '{}-{:d}'.format(cls_id, id)
         t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN, 2, 2)[0]
@@ -72,6 +81,10 @@ def softmin(x):
     x_exp = np.exp(-x)
     return x_exp / x_exp.sum()
 
+def cv2_imshow(image, title=''):
+    plt.title(title)
+    plt.imshow(image)
+    plt.show()
 
 if __name__ == '__main__':
     x = np.arange(10) / 10.
