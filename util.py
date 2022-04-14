@@ -44,7 +44,7 @@ def draw_bbox(img, box, cls_name, identity=None, offset=(0, 0)):
 
 def draw_bboxes(img, bbox, identities=None, offset=(0, 0), cls_id=None, masks=None,  class_names=None):
     print(f'draw_bboxes len(bbox)={len(bbox)}')
-    measurement = Measurement(720, 33, 0.8)
+    measurement = Measurement(3840, 120, 2)
     for i, box in enumerate(bbox):
         x1, y1, x2, y2 = [int(i) for i in box]
         x1 += offset[0]

@@ -55,7 +55,7 @@ class Detector(object):
             _, im = self.vdo.retrieve()
             # im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
             bbox_xcycwh, cls_conf, cls_ids, masks = self.detectron2.detect(im)
-            print(f'len(cls_ids)={len(cls_ids)}, len(cls_conf)={len(cls_conf)}, len(masks)={len(masks)}')
+            # print(f'len(cls_ids)={len(cls_ids)}, len(cls_conf)={len(cls_conf)}, len(masks)={len(masks)}')
             # print(f'masks={masks}')
             # for mask in masks:
                 # cv2_imshow(mask)
@@ -77,7 +77,7 @@ class Detector(object):
                     cls_id = outputs[:, -2]
                     msk = outputs[:, -1]
                     # cls_id.sort()
-                    print(f'len(cls_id)={len(cls_id)}, cls_id={cls_id}')
+                    # print(f'len(cls_id)={len(cls_id)}, cls_id={cls_id}')
                     # print(f'msk={msk}')
                     im = draw_bboxes(im, bbox_xyxy, identities, cls_id=cls_id, masks=msk, class_names=self.class_names)
 
