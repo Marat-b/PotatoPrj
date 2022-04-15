@@ -161,3 +161,4 @@ __pycache__/
 *.mp4
 *.avi
 *.pth
+/eval/

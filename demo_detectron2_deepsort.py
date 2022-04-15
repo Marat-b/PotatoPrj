@@ -44,6 +44,9 @@ class Detector(object):
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
+        self.vdo.release()
+        self.output.release()
+        cv2.destroyAllWindows()
         if exc_type:
             print(exc_type, exc_value, exc_traceback)
 
