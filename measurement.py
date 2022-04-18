@@ -42,7 +42,7 @@ class Measurement:
             rect = cv2.minAreaRect(cnt)
             sides = rect[1]
             width = sides[0] if sides[0] > sides[1] else sides[1]
-            print(f'show_areas width={width}')
+            # print(f'show_areas width={width}')
         return int(width)
 
     def get_width_meter(self, image_mask):

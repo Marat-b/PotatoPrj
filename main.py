@@ -6,9 +6,16 @@ from distutils.util import strtobool
 import cv2
 from tqdm import tqdm
 
+from calculator import Calculator
+from classes.bbox import Bbox
+from classes.drawer import Drawer
+from classes.entity import Entity
+from classes.identity import Identity
+from classes.mask import Mask
 from deep_sort import DeepSort
 from detectron2_detection import Detectron2
 from funcz import DrawAreaRect2
+from measurement import Measurement
 from util import cv2_imshow, draw_bboxes
 
 
@@ -51,6 +58,10 @@ class Detector(object):
             print(exc_type, exc_value, exc_traceback)
 
     def detect(self):
+        drawer = Drawer()
+        drawer.add_bbox(Bbox()).add_identity(Identity()).add_entity(Entity()).add_mask(Mask()).add_measurement(
+            Measurement(3840, 120, 2)).add_calculator(Calculator())
+
         for i in tqdm(range(self.num_frames)):
             if not self.vdo.grab():
                 continue
@@ -76,13 +87,15 @@ class Detector(object):
                 # print(f'outputs={outputs}')
                 if len(outputs) > 0:
                     bbox_xyxy = outputs[:, :4]
+                    im = drawer.outputs(im, outputs)
+                    # print(f'len(bbox={len(bbox)})')
                     identities = outputs[:, -3]
                     cls_id = outputs[:, -2]
                     msk = outputs[:, -1]
                     # cls_id.sort()
                     # print(f'len(cls_id)={len(cls_id)}, cls_id={cls_id}')
                     # print(f'msk={msk}')
-                    im = draw_bboxes(im, bbox_xyxy, identities, cls_id=cls_id, masks=msk, class_names=self.class_names)
+                    # im = draw_bboxes(im, bbox_xyxy, identities, cls_id=cls_id, masks=msk, class_names=self.class_names)
 
 
             # end = time.time()

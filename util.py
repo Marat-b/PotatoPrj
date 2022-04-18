@@ -42,15 +42,12 @@ def draw_bbox(img, box, cls_name, identity=None, offset=(0, 0)):
     return img
 
 
-def draw_bboxes(img, bbox, identities=None, offset=(0, 0), cls_id=None, masks=None,  class_names=None):
+def draw_bboxes(img, bbox, identities=None, cls_id=None, masks=None,  class_names=None):
     print(f'draw_bboxes len(bbox)={len(bbox)}')
     measurement = Measurement(3840, 120, 2)
     for i, box in enumerate(bbox):
         x1, y1, x2, y2 = [int(i) for i in box]
-        x1 += offset[0]
-        x2 += offset[0]
-        y1 += offset[1]
-        y2 += offset[1]
+
         # box text and bar
         id = int(identities[i]) if identities is not None else 0
         class_id = int(cls_id[i]) if cls_id is not None else 0
