@@ -60,7 +60,8 @@ class Detector(object):
     def detect(self):
         drawer = Drawer()
         drawer.add_bbox(Bbox()).add_identity(Identity()).add_entity(Entity()).add_mask(Mask()).add_measurement(
-            Measurement(3840, 120, 2)).add_calculator(Calculator())
+            Measurement(3840, 120, 1.5))\
+            .add_calculator(Calculator([['small', 0.0, 0.035], ['middle', 0.035, 0.08], ['big', 0.08, 1.0]]))
 
         for i in tqdm(range(self.num_frames)):
             if not self.vdo.grab():

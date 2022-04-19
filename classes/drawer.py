@@ -65,6 +65,8 @@ class Drawer:
             cv2.rectangle(image, (x1, y1), (x2, y2), color, 3)
             cv2.rectangle(image, (x1, y1), (x1 + t_size[0] + 3, y1 + t_size[1] + 4), color, -1)
             cv2.putText(image, label, (x1, y1 + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 2, [255, 255, 255], 2)
-        cv2.putText(image, 'amount of potato={}'.format(str(self._calculator.count(0.0, 1.0))),
-                    (5, 5 + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 2, [0, 0, 255], 2)
+        item_sorted = self._calculator.count()
+        for i, key in enumerate(item_sorted.keys()):
+            cv2.putText(image, 'amount of {}={}'.format(key, str(item_sorted[key])),
+                        (5, 5 + t_size[1] + 4 + i*(t_size[1])), cv2.FONT_HERSHEY_PLAIN, 2, [0, 0, 255], 2)
         return image
