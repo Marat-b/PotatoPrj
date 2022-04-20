@@ -14,7 +14,6 @@ from classes.identity import Identity
 from classes.mask import Mask
 from deep_sort import DeepSort
 from detectron2_detection import Detectron2
-from funcz import DrawAreaRect2
 from measurement import Measurement
 from util import cv2_imshow, draw_bboxes
 
@@ -90,9 +89,9 @@ class Detector(object):
                     bbox_xyxy = outputs[:, :4]
                     im = drawer.outputs(im, outputs)
                     # print(f'len(bbox={len(bbox)})')
-                    identities = outputs[:, -3]
-                    cls_id = outputs[:, -2]
-                    msk = outputs[:, -1]
+                    # identities = outputs[:, -3]
+                    # cls_id = outputs[:, -2]
+                    # msk = outputs[:, -1]
                     # cls_id.sort()
                     # print(f'len(cls_id)={len(cls_id)}, cls_id={cls_id}')
                     # print(f'msk={msk}')
@@ -102,6 +101,7 @@ class Detector(object):
             # end = time.time()
             # print("time: {}s, fps: {}".format(end - start, 1 / (end - start)))
 
+            print(self.args.display)
             if self.args.display:
                 cv2.imshow("test", im)
                 cv2.waitKey(1)
@@ -114,7 +114,7 @@ class Detector(object):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("VIDEO_PATH", type=str)
-    parser.add_argument("--deepsort_checkpoint", type=str, default="deep_sort/deep/checkpoint/ckpt.t7")
+    parser.add_argument("--deepsort_checkpoint", type=str, default="weights/ckpt.t7")
     parser.add_argument("--detectron2_checkpoint", type=str, default=None)
     parser.add_argument("--max_dist", type=float, default=0.3)
     parser.add_argument("--ignore_display", dest="display", action="store_false")
