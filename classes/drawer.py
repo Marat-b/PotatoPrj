@@ -13,6 +13,7 @@ class Drawer:
         self._outputs = None
         self._color_list = []
         self._color_index = 999
+        self._class_names = None
         for j in range(self._color_index + 1):
             self._color_list.append(
                 (int(random.randrange(255)), int(random.randrange(255)), int(random.randrange(255)))
@@ -24,6 +25,10 @@ class Drawer:
 
     def add_calculator(self, calculator):
         self._calculator = calculator
+        return self
+
+    def add_class_names(self, class_names):
+        self._class_names = class_names
         return self
 
     def add_entity(self, entity):
@@ -60,7 +65,7 @@ class Drawer:
             width = float('{:.2f}'.format(self._measurement.get_width_meter(self._mask[i])))
             self._calculator.add(self._identity[i], width)
             color = self._color_list[int(self._identity[i] % self._color_index)]
-            label = '{}-{:d} w={}m'.format(self._entity[i], self._identity[i], str(width))
+            label = '{}-{:d} w={}m'.format(self._class_names[self._entity[i]], self._identity[i], str(width))
             t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN, 2, 2)[0]
             cv2.rectangle(image, (x1, y1), (x2, y2), color, 3)
             cv2.rectangle(image, (x1, y1), (x1 + t_size[0] + 3, y1 + t_size[1] + 4), color, -1)
