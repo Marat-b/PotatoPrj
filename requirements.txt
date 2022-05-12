@@ -3,3 +3,5 @@ torch
 torchvision
 opencv-python==4.1.1.26
 redis
+python-dotenv
+simplejpeg
