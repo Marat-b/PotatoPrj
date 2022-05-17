@@ -42,12 +42,11 @@ class Detectron2:
         bbox_xcycwh, cls_conf, cls_ids, masks = [], [], [], []
 
         for (box, _class, score, pr_mask) in zip(boxes, classes, scores, pr_masks):
-
-            if _class == 0:
-                x0, y0, x1, y1 = box
-                bbox_xcycwh.append([(x1 + x0) / 2, (y1 + y0) / 2, (x1 - x0), (y1 - y0)])
-                cls_conf.append(score)
-                cls_ids.append(_class)
-                masks.append(pr_mask)
+            # if _class == 0:
+            x0, y0, x1, y1 = box
+            bbox_xcycwh.append([(x1 + x0) / 2, (y1 + y0) / 2, (x1 - x0), (y1 - y0)])
+            cls_conf.append(score)
+            cls_ids.append(_class)
+            masks.append(pr_mask)
 
         return np.array(bbox_xcycwh, dtype=np.float64), np.array(cls_conf), np.array(cls_ids), np.array(masks)

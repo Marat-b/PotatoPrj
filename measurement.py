@@ -32,9 +32,9 @@ class Measurement:
         -------
             width: int - width in pixel
         """
-        blurred = cv2.GaussianBlur(image_mask, (5, 5), 0)
-        thresh = cv2.threshold(blurred, 200, 255, cv2.THRESH_BINARY)[1]
-        contours, hiearchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        # blurred = cv2.GaussianBlur(image_mask, (5, 5), 0)
+        # thresh = cv2.threshold(blurred, 200, 255, cv2.THRESH_BINARY)[1]
+        contours = cv2.findContours(image_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
         # print(f'contours={np.array(contours).shape}')
         # print(f'contours={contours}')
         width = 0
