@@ -22,6 +22,7 @@ class Detector(object):
     def __init__(self, args):
         self.args = args
         self.class_names = ['strong', 'sick', 'stone']
+        self.min_confidence = args.min_conf
         use_cuda = bool(strtobool(self.args.use_cuda))
         if args.display:
             cv2.namedWindow("test", cv2.WINDOW_NORMAL)
@@ -33,7 +34,7 @@ class Detector(object):
             use_cuda=use_cuda
         )
 
-        self.deepsort = DeepSort(args.deepsort_checkpoint, use_cuda=use_cuda)
+        self.deepsort = DeepSort(args.deepsort_checkpoint, min_confidence=self.min_confidence,  use_cuda=use_cuda)
 
     def __enter__(self):
         assert os.path.isfile(self.args.VIDEO_PATH), "Error: path error"
@@ -41,6 +42,7 @@ class Detector(object):
         self.im_width = int(self.vdo.get(cv2.CAP_PROP_FRAME_WIDTH))
         self.im_height = int(self.vdo.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self.num_frames = int(self.vdo.get(cv2.CAP_PROP_FRAME_COUNT))
+        self.fps = int(self.vdo.get(cv2.CAP_PROP_FPS))
 
         if self.args.save_path:
             fourcc = cv2.VideoWriter_fourcc(*'MP4V')
@@ -64,21 +66,21 @@ class Detector(object):
             .add_calculator(Calculator([['small', 0.0, 0.035], ['middle', 0.035, 0.08], ['big', 0.08, 1.0]])) \
             .add_class_names(['strong', 'sick', 'black_stone'])
 
+        counter = int(self.fps / 2)
+        count = 0
+
         for i in tqdm(range(self.num_frames)):
             if not self.vdo.grab():
                 continue
             _, im = self.vdo.retrieve()
+            # if i % 2 == 0:
+            #     count += 1
+            #     continue
+            count = 0
             bbox_xcycwh, cls_conf, cls_ids, masks = self.detectron2.detect(im)
             # print(f'len(cls_ids)={len(cls_ids)}, len(cls_conf)={len(cls_conf)}, len(masks)={len(masks)}')
 
             if len(bbox_xcycwh) > 0:
-                # select class person
-                # mask = cls_ids == 0
-
-                # bbox_xcycwh = bbox_xcycwh[mask]
-                # bbox_xcycwh[:, 3:] *= 1.2
-
-                # cls_conf = cls_conf[mask]
                 outputs = self.deepsort.update(bbox_xcycwh, cls_conf, im, cls_ids, masks)
                 # print(f'outputs={outputs}')
                 if len(outputs) > 0:
@@ -103,6 +105,7 @@ def parse_args():
     parser.add_argument("--display_height", type=int, default=600)
     parser.add_argument("--save_path", type=str, default="demo.avi")
     parser.add_argument("--use_cuda", type=str, default="True")
+    parser.add_argument("--min_conf", type=float, default=0.7)
     return parser.parse_args()
 
 

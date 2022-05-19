@@ -10,8 +10,8 @@ __all__ = ['DeepSort']
 
 
 class DeepSort(object):
-    def __init__(self, model_path, max_dist=0.2, use_cuda=True):
-        self.min_confidence = 0.3
+    def __init__(self, model_path, max_dist=0.2, min_confidence=0.5,  use_cuda=True):
+        self.min_confidence = min_confidence
         self.nms_max_overlap = 1.0
 
         self.extractor = Extractor(model_path, use_cuda=use_cuda)
@@ -33,7 +33,7 @@ class DeepSort(object):
                 masks
             )
 
-        ) if conf > self.min_confidence]
+        ) if conf >= self.min_confidence]
 
         # run on non-maximum supression
         boxes = np.array([d.tlwh for d in detections])
