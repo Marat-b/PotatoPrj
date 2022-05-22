@@ -1,13 +1,16 @@
-from classes.calculator import Calculator
+import sys
+sys.path.append('../')
+
 from classes.bbox import Bbox
-from classes.drawer import Drawer
+from classes.drawer_depth import Drawer
 from classes.entity import Entity
 from classes.identity import Identity
 from classes.mask import Mask
 from config.config import DEEPSORT, DETECTRON2, DISPLAY, USE_CUDA
 from deep_sort import DeepSort
 from detectron2_detection import Detectron2
-from classes.measurement import Measurement
+from classes.calculator import Calculator
+from classes.measurement_depth import Measurement
 
 
 class Detector(object):
@@ -25,7 +28,7 @@ class Detector(object):
             Mask(
             )
         ).add_measurement(
-            Measurement(3840, 120, 1.5)
+            Measurement(1280, 72)
         ) \
             .add_calculator(Calculator([['small', 0.0, 0.035], ['middle', 0.035, 0.08], ['big', 0.08, 1.0]])) \
             .add_class_names(self.class_names)
@@ -42,21 +45,17 @@ class Detector(object):
             image: np.array - image with detected objects
 
         """
-        bbox_xcycwh, cls_conf, cls_ids, masks = self.detectron2.detect(image)
+        # image[:, :, [0, 1, 2] is BGR
+        # print('detectron2.detect')
+        bbox_xcycwh, cls_conf, cls_ids, masks = self.detectron2.detect(image[:, :, :-1])
         # print(f'len(cls_ids)={len(cls_ids)}, len(cls_conf)={len(cls_conf)}, len(masks)={len(masks)}')
 
         if len(bbox_xcycwh) > 0:
-            # select class person
-            mask = cls_ids == 0
-
-            bbox_xcycwh = bbox_xcycwh[mask]
-            bbox_xcycwh[:, 3:] *= 1.2
-
-            cls_conf = cls_conf[mask]
-            outputs = self.deepsort.update(bbox_xcycwh, cls_conf, image, cls_ids, masks)
+            outputs = self.deepsort.update(bbox_xcycwh, cls_conf, image[:, :, :-1], cls_ids, masks)
             # print(f'outputs={outputs}')
             if len(outputs) > 0:
                 image = self.drawer.outputs(image, outputs)
                 print(f'len(outputs)={len(outputs)}')
+        # image = self.drawer.outputs_test(image)
 
         return image

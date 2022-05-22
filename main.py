@@ -1,12 +1,11 @@
 import argparse
 import os
-import time
 from distutils.util import strtobool
 
 import cv2
 from tqdm import tqdm
 
-from calculator import Calculator
+from classes.calculator import Calculator
 from classes.bbox import Bbox
 from classes.drawer import Drawer
 from classes.entity import Entity
@@ -14,8 +13,7 @@ from classes.identity import Identity
 from classes.mask import Mask
 from deep_sort import DeepSort
 from detectron2_detection import Detectron2
-from measurement import Measurement
-from util import cv2_imshow, draw_bboxes
+from classes.measurement import Measurement
 
 
 class Detector(object):
