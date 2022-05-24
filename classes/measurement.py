@@ -77,7 +77,7 @@ class Measurement:
         length = width if width > height else height
         return int((box_len * length) / 28)
 
-    def get_width_meter(self, image_mask):
+    def get_width_meter(self, image_mask, box):
         """
          Get biggest side of object (width) in meter
         Parameters:
@@ -87,7 +87,7 @@ class Measurement:
         ________
             width_meter: int - width in meter
         """
-        width_pixel = self._get_width_pixel(image_mask)
+        width_pixel = self._get_width_pixel_ts(image_mask, box)
         focal_pixel = self._get_focal_pixel()
         width_meter = (width_pixel * self._distance_to_object) / focal_pixel
         return width_meter
