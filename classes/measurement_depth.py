@@ -12,6 +12,8 @@ class Measurement:
            """
         self._object_width = object_width
         self._fov = fov
+        self.focal_length_in_pixel = 882.5
+        self.baseline = 0.075
         # self._distance_to_object = distance_to_object
 
     def _get_focal_pixel(self):
@@ -46,7 +48,18 @@ class Measurement:
         return int(width)
 
     def _distance_to_object(self, disparity) -> float:
-        distance = 882.5 * 0.075 / disparity
+        """
+        Get distance from focal length, baseline and disparity
+        Parameters
+        ----------
+        disparity : float
+
+        Returns
+        -------
+         distance : float
+
+        """
+        distance = self.focal_length_in_pixel * self.baseline / disparity
         return distance
 
     def get_width_meter(self, image_mask, disparity):

@@ -45,8 +45,6 @@ class Detector(object):
             image: np.array - image with detected objects
 
         """
-        # image[:, :, [0, 1, 2] is BGR
-        # print('detectron2.detect')
         bbox_xcycwh, cls_conf, cls_ids, masks = self.detectron2.detect(image[:, :, :-1])
         # print(f'len(cls_ids)={len(cls_ids)}, len(cls_conf)={len(cls_conf)}, len(masks)={len(masks)}')
 
@@ -56,6 +54,5 @@ class Detector(object):
             if len(outputs) > 0:
                 image = self.drawer.outputs(image, outputs)
                 print(f'len(outputs)={len(outputs)}')
-        # image = self.drawer.outputs_test(image)
 
         return image
