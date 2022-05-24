@@ -45,6 +45,38 @@ class Measurement:
             # print(f'show_areas width={width}')
         return int(width)
 
+    def _get_width_pixel_ts(self, image_mask, box):
+        """
+        Get biggest side of object (width) in pixels
+        Parameters:
+        ----------
+            image_mask:  np.array -  image mask (black-white)
+        Returns:
+        -------
+            width: int - width in pixel
+        """
+        def calculate_distance(point_a, point_b):
+            dist = np.sqrt((point_a[0] - point_b[0]) ** 2 + (point_a[1] - point_b[1]) ** 2)
+            return dist
+        width = box[2] - box[0]
+        height = box[3] - box[1]
+        # print(f'width={width}, height={height}')
+        box_len = width if width > height else height
+        mask = image_mask[0]  # .astype('uint8')
+        mask[mask > 0.9] = 1.0
+        mask = mask.astype('uint8')
+        f = np.argwhere(mask > 0)
+        f_max = np.argmax(f, axis=0)
+        bottom = f[f_max[0]]
+        right = f[f_max[1]]
+        f_min = np.argmin(f, axis=0)
+        top = np.array([f[f_min[0]][0], bottom[1]])
+        left = np.array([right[0], f[f_min[1]][1]])
+        width = calculate_distance(left, right)
+        height = calculate_distance(top, bottom)
+        length = width if width > height else height
+        return int((box_len * length) / 28)
+
     def get_width_meter(self, image_mask):
         """
          Get biggest side of object (width) in meter
