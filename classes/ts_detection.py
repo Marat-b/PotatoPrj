@@ -10,30 +10,27 @@ import numpy as np
 class TorchscriptDetection:
     def __init__(self, path_inference, use_cuda=True):
         self.device = 'cuda' if use_cuda else 'cpu'
-        self.fields = {
-            "proposal_boxes": Boxes,
-            "objectness_logits": Tensor,
-            "pred_boxes": Boxes,
-            "scores": Tensor,
-            "pred_classes": Tensor,
-            "pred_masks": Tensor,
-        }
-        assert path_inference is not None
-        with patch_instances(self.fields):
-            self.model = torch.jit.load(path_inference)
-            self.model.to(self.device)
+        # self.fields = {
+        #     "proposal_boxes": Boxes,
+        #     "objectness_logits": Tensor,
+        #     "pred_boxes": Boxes,
+        #     "scores": Tensor,
+        #     "pred_classes": Tensor,
+        #     "pred_masks": Tensor,
+        # }
+        # assert path_inference is not None
+        # with patch_instances(self.fields):
+        self.model = torch.jit.load(path_inference)
+        self.model.to(self.device)
 
     def detect(self, image):
         with torch.no_grad():
-            out = self.model.inference(
-                [{
-                    'image': torch.as_tensor(image.astype('float32').transpose(2, 0, 1))
-                }],
-                do_postprocess=False
+            out = self.model(
+                     torch.as_tensor(image.astype('float32').transpose(2, 0, 1))
             )[0]
-        boxes = out.pred_boxes.tensor.cpu().numpy()
-        classes = out.pred_classes.cpu().numpy()
-        scores = out.scores.cpu().numpy()
+        boxes = out[0].numpy()
+        classes = out[1].numpy()
+        scores = out[3].numpy()
         pr_masks = self._do_mask(out, image)
         # pr_masks = out.pred_masks.cpu().numpy()
         # pr_masks = pr_masks.astype(np.uint8)
@@ -50,7 +47,7 @@ class TorchscriptDetection:
         return np.array(bbox_xcycwh, dtype=np.float64), np.array(cls_conf), np.array(cls_ids), np.array(masks)
 
     def _do_mask(self, out, image):
-        N = len(out.pred_boxes)
+        N = len(out[2])
         chunks = torch.chunk(torch.arange(N, device='cpu'), N)
         img_masks = torch.zeros(
             N, image.shape[0], image.shape[1], device='cpu', dtype=torch.bool
@@ -58,7 +55,7 @@ class TorchscriptDetection:
         # masks = out.pred_masks[:, 0, :, :]  # shape was [#instances, 1, 28, 28] --> [#instances, 28, 28]
         for inds in chunks:
             masks_chunk, spatial_inds = _do_paste_mask(
-                out.pred_masks[inds, :, :, :], out.pred_boxes.tensor[inds], image.shape[0], image.shape[1],
+                out[2][inds, :, :, :], out[0].tensor[inds], image.shape[0], image.shape[1],
                 skip_empty=True
             )
 
@@ -70,7 +67,7 @@ class TorchscriptDetection:
 
 
 if __name__ == '__main__':
-    tsd = TorchscriptDetection('../weights/potato_inference.pt', use_cuda=False)
+    tsd = TorchscriptDetection('../weights/model2.ts', use_cuda=False)
     img = cv2.imread('../images/potato2.jpg')
     pred_boxes, scores, pred_classes, pred_masks = tsd.detect(img)
     # print(f'pred_boxes={pred_boxes}')
