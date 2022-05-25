@@ -83,6 +83,7 @@ class Measurement:
         Parameters:
         __________
             image_mask: np.array - image mask (black-white)
+            box: list - x1, y1, x2, y2
         Returns:
         ________
             width_meter: int - width in meter

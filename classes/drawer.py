@@ -62,7 +62,7 @@ class Drawer:
         for i, box in enumerate(bboxes):
             x1, y1, x2, y2 = [int(i) for i in box]
             # print(f'x1={x1}, x2={x2}, y1={y1}, y2={y2}')
-            width = float('{:.2f}'.format(self._measurement.get_width_meter(self._mask[i])))
+            width = float('{:.2f}'.format(self._measurement.get_width_meter(self._mask[i], box)))
             self._calculator.add(self._identity[i], width)
             color = self._color_list[int(self._identity[i] % self._color_index)]
             label = '{}-{:d} w={}m'.format(self._class_names[self._entity[i]], self._identity[i], str(width))
