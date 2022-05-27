@@ -14,7 +14,7 @@ while True:
         # print('after receiver - get frame')
         if frame is not None:
             image = frame.copy()
-            image = cv2.resize(image, (600, 600))
+            image = cv2.resize(image, (640, 360))
             cv2.imshow(window_name, image)
             cv2.waitKey(1)
         # else:

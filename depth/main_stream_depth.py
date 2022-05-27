@@ -8,9 +8,9 @@ from classes.identity import Identity
 from classes.mask import Mask
 from config.config import DEEPSORT, DETECTRON2, DISPLAY, USE_CUDA
 from deep_sort import DeepSort
-from detectron2_detection import Detectron2
 from classes.calculator import Calculator
 from classes.measurement_depth import Measurement
+from classes.ts_detection import TorchscriptDetection
 
 
 class Detector(object):
@@ -18,8 +18,8 @@ class Detector(object):
         self.class_names = ['strong', 'sick', 'stone']
         use_cuda = USE_CUDA
         self.display = DISPLAY
-        self.detectron2 = Detectron2(
-            detectron2_checkpoint=DETECTRON2, num_classes=len(self.class_names),
+        self.detectron2 = TorchscriptDetection(
+            DETECTRON2,
             use_cuda=use_cuda
         )
 

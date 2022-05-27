@@ -69,12 +69,22 @@ class Drawer:
             x1, y1, x2, y2 = [int(i) for i in box]
             # disp_map = disparity_map[y1:y2, x1:x2]
             # print(f'mask={masks[i]}')
-            disp_map = cv2.bitwise_and(disparity_map, masks[i])
+            mask = self._get_mask(disparity_map, box, masks[i])
+            ###################################
+            # depth_mean, _ = cv2.meanStdDev(disparity_map, mask=mask)
+            # print(f'depth_map.min()={disparity_map.min()}, depth_map.max()={disparity_map.max()}')
+            # print(f'depth_mean={depth_mean}')
+            ###################################
+            disp_map = cv2.bitwise_and(disparity_map, mask)
             # print(f'disp_map={disp_map}')
-            avg_disparity = np.average(disp_map, weights=(disp_map > 0))
-            print(f'avg_disparity={avg_disparity}')
+            # avg_disparity = np.average(disp_map, weights=(disp_map > 0))
+            zero_to_nan = np.where(disp_map == 0.0, np.nan, disp_map)
+            # avg_disparity = np.nanmedian(zero_to_nan)
+            # print(f'avg_disparity={avg_disparity}')
+            max_disparity = np.nanmax(zero_to_nan)
+            print(f'****mind={max_disparity}')
             # print(f'x1={x1}, x2={x2}, y1={y1}, y2={y2}')
-            width = float('{:.2f}'.format(self._measurement.get_width_meter(self._mask[i], avg_disparity)))
+            width = float('{:.3f}'.format(self._measurement.get_width_meter(mask, max_disparity, box)))
             self._calculator.add(self._identity[i], width)
             color = self._color_list[int(self._identity[i] % self._color_index)]
             label = '{}-{:d} w={}m'.format(self._class_names[self._entity[i]], self._identity[i], str(width))
@@ -84,9 +94,35 @@ class Drawer:
             cv2.putText(image, label, (x1, y1 + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 2, [255, 255, 255], 2)
         item_sorted = self._calculator.count()
         for i, key in enumerate(item_sorted.keys()):
-            cv2.putText(image, 'amount of {}={}'.format(key, str(item_sorted[key])),
-                        (5, 5 + t_size[1] + 4 + i*(t_size[1])), cv2.FONT_HERSHEY_PLAIN, 2, [0, 0, 255], 2)
+            cv2.putText(
+                image, 'amount of {}={}'.format(key, str(item_sorted[key])),
+                (5, 5 + t_size[1] + 4 + i * (t_size[1])), cv2.FONT_HERSHEY_PLAIN, 2, [0, 0, 255], 2
+                )
         return image
+
+    def _get_mask(self, img, box, mask):
+        """
+        get mask from (1,28,28) array considered size to image
+        Parameters:
+        ---------
+            img: ndarray - disparity map (:, : 1)
+            box: float - x1, y1, x2, y2
+            mask: ndarray - mask (1, 28, 28)
+
+        Returns:
+        -------
+            mask: ndarray - mask
+
+        """
+        msk = np.reshape(mask, (28, 28, 1))
+        h, w = img.shape[:-1]
+        new_mask = np.zeros((h, w), dtype=np.uint8)
+        x1, y1, x2, y2 = box
+        mask_resized = cv2.resize(msk, (x2 - x1, y2 - y1), interpolation=cv2.INTER_CUBIC)
+        mask_resized[mask_resized >= 0.99] = 255
+        mask_resized = mask_resized.astype(np.uint8)
+        new_mask[y1:y2, x1:x2] = mask_resized
+        return new_mask
 
     def outputs_test(self, img):
         print(f'img.shape={img.shape}, type={img.dtype}')
@@ -95,4 +131,3 @@ class Drawer:
         cv2.rectangle(image, (0, 0), (100, 100), (255, 0, 0), 3)
         disparity_map = img[:, :, :3]
         return image
-

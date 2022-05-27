@@ -21,8 +21,8 @@ class Measurement:
         Get focal length in pixel
         :return focal_pixel: focal length in pixel
         """
-        focal_pixel = (self._object_width * 0.5) / math.tan((self._fov * 0.5 * math.pi) / 180)
-        return focal_pixel
+        # focal_pixel = (self._object_width * 0.5) / math.tan((self._fov * 0.5 * math.pi) / 180)
+        return self.focal_length_in_pixel
 
     def _get_width_pixel(self, image_mask):
         """
@@ -45,7 +45,42 @@ class Measurement:
             sides = rect[1]
             width = sides[0] if sides[0] > sides[1] else sides[1]
             # print(f'show_areas width={width}')
-        return int(width)
+        return width
+
+    # def _get_width_pixel_ts(self, image_mask):
+    #     """
+    #     Get biggest side of object (width) in pixels
+    #     Parameters:
+    #     ----------
+    #         image_mask:  np.array -  image mask (black-white)
+    #     Returns:
+    #     -------
+    #         width: int - width in pixel
+    #     """
+    #
+    #     def calculate_distance(point_a, point_b):
+    #         dist = np.sqrt((point_a[0] - point_b[0]) ** 2 + (point_a[1] - point_b[1]) ** 2)
+    #         return dist
+    #
+    #     # width = box[2] - box[0]
+    #     # height = box[3] - box[1]
+    #     # print(f'width={width}, height={height}')
+    #     # box_len = width if width > height else height
+    #     # mask = image_mask[0]  # .astype('uint8')
+    #     # mask[mask > 0.9] = 1.0
+    #     # mask = mask.astype('uint8')
+    #     f = np.argwhere(image_mask > 0)
+    #     f_max = np.argmax(f, axis=0)
+    #     bottom = f[f_max[0]]
+    #     right = f[f_max[1]]
+    #     f_min = np.argmin(f, axis=0)
+    #     top = np.array([f[f_min[0]][0], bottom[1]])
+    #     left = np.array([right[0], f[f_min[1]][1]])
+    #     width = calculate_distance(left, right)
+    #     height = calculate_distance(top, bottom)
+    #     length = width if width > height else height
+    #     # return int((box_len * length) / 28)
+    #     return int(length)
 
     def _distance_to_object(self, disparity) -> float:
         """
@@ -60,9 +95,10 @@ class Measurement:
 
         """
         distance = self.focal_length_in_pixel * self.baseline / disparity
+        print(f'distance={distance}')
         return distance
 
-    def get_width_meter(self, image_mask, disparity):
+    def get_width_meter(self, image_mask, disparity, box):
         """
          Get biggest side of object (width) in meter
         Parameters:
@@ -77,5 +113,6 @@ class Measurement:
         focal_pixel = self._get_focal_pixel()
         distance_to_object = self._distance_to_object(disparity)
         width_meter = (width_pixel * distance_to_object) / focal_pixel
+        print(f'width_meter={width_meter}')
         return width_meter
 
