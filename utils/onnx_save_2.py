@@ -1,3 +1,4 @@
+import os
 from multiprocessing import freeze_support
 
 from detectron2.checkpoint import DetectionCheckpointer
@@ -14,60 +15,49 @@ import torch
 import onnx
 
 
+def get_images(path):
+    tmpl = '{}/{}'
+    l_images = []
+    l_inputs = []
+    print(path)
+    files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+    print(len(files))
+    for file in files:
+        im = cv2.imread(tmpl.format(path, file))
+        im = cv2.resize(im, (1024, 1024))
+        im_t = torch.as_tensor(im.astype("uint8").transpose(2, 0, 1))
+        l_images.append(im_t)
+        l_inputs.append({'image': im_t})
+    # print(f'images={l_images[0]}\ninputs={l_inputs[0]}')
+    return l_images, l_inputs
+
+
 def main():
     weights_path = '../weights/potato_model_best_202205311000.pth'
     # weights_path = '../weights/potato_model_final_202204221400.pth'
-
-    # register_coco_instances(
-    #     "potato_dataset_test", {},
-    #     r"C:\softz\work\potato\dataset\potato_set6_coco.json",
-    #     r"C:\softz\work\potato\dataset\set6"
-    # )
-    # register_coco_instances(
-    #     "potato_dataset_test26", {},
-    #     r"C:\softz\work\potato\dataset\potato_set26_coco.json",
-    #     r"C:\softz\work\potato\dataset\set26"
-    # )
-
-    img = cv2.imread('../images/non_ts_1.jpg')
-    img = cv2.resize(img, (1024, 1024))
+    # img = cv2.imread('../images/non_ts_1.jpg')
 
     torch._C._jit_set_bailout_depth(1)
     cfg = get_cfg()
-    # cfg = add_export_config(cfg)
     cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"))
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = 3
     cfg.DATASETS.TEST = ()
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
     cfg.MODEL.WEIGHTS = weights_path
     cfg.MODEL.DEVICE = 'cpu'
-    # cfg.freeze()
-    # cfg = add_export_config(cfg)
-    model = build_model(cfg).cpu()
+    cfg.freeze()
+    model = build_model(cfg)
     DetectionCheckpointer(model).resume_or_load(cfg.MODEL.WEIGHTS)
     model.eval()
 
-    # height, width = img.shape[:2]
-    image = torch.as_tensor(img.astype("uint8").transpose(2, 0, 1))
+    # image = torch.as_tensor(img.astype("uint8").transpose(2, 0, 1))
     # image = torch.rand(3, 1024, 1024)
-    print(f'image.shape={image.shape}, image.dtype={image.dtype}')
-    # inputs = {"image": image, "height": height, "width": width}
-
-    # Export to Onnx model
-    # onnxModel = export_onnx_model(model, [inputs])
-    # onnx.save(onnxModel, "/content/deploy.onnx")
-    ##############################################################
-    # data_loader = build_detection_test_loader(cfg, cfg.DATASETS.TEST)
-    # first_batch = next(iter(data_loader))
-    # image = first_batch[0]["image"]
     # print(f'image.shape={image.shape}, image.dtype={image.dtype}')
-    # data_loader_i = iter(data_loader)
-    # print(f'data_loader_i={data_loader_i}')
-    # images = [img[0]["image"] for img in data_loader_i]
+
+    # inputs = [{"image": image}]  # remove other unused keys
+    images, inputs = get_images(r"C:\softz\work\potato\dataset\set23")
+    # print(f'images={images[0]}\ninputs={inputs[0]}')
     # exit()
-    # image = first_batch[0]["image"]
-    #######################################################
-    inputs = [{"image": image}]  # remove other unused keys
     if isinstance(model, GeneralizedRCNN):
         print('inference is Not None')
 
@@ -81,9 +71,9 @@ def main():
         inference = None  # assume that we just call the model directly
     traceable_model = TracingAdapter(model, inputs, inference)
     torch.onnx.export(
-        traceable_model, (image,), '../weights/model_202205311000_ov12.onnx', opset_version=12,
-        do_constant_folding=True, verbose=True
-        )
+        traceable_model, tuple(images), '../weights/model_202205311000_ov12.onnx', opset_version=12,
+        do_constant_folding=True
+    )
 
 
 if __name__ == '__main__':

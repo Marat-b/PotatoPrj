@@ -3,6 +3,7 @@ import os
 from distutils.util import strtobool
 
 import cv2
+import torch
 from tqdm import tqdm
 
 from classes.calculator import Calculator
@@ -108,6 +109,7 @@ def parse_args():
 
 
 if __name__ == "__main__":
+    # torch.set_num_threads(1)
     args = parse_args()
     with Detector(args) as det:
         det.detect()

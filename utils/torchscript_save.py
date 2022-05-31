@@ -14,7 +14,7 @@ import torch
 
 
 def main():
-    weights_path = '../weights/potato_model_current_202205021400.pth'
+    weights_path = '../weights/potato_model_best_202205311000.pth'
 
     register_coco_instances(
         "potato_dataset_test", {},
@@ -26,10 +26,10 @@ def main():
 
     cfg = get_cfg()
     # cfg = add_export_config(cfg)
-    cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"))
+    cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"))
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = 3
     cfg.DATASETS.TEST = ('potato_dataset_test',)
-    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.8
+    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
     cfg.MODEL.WEIGHTS = weights_path
     cfg.MODEL.DEVICE = 'cpu'
     model = build_model(cfg)
@@ -53,7 +53,7 @@ def main():
     traceable_model = TracingAdapter(model, inputs, inference)
     ################ torchscript ###################################################
     ts_model = torch.jit.trace(traceable_model, (image,))
-    torch.jit.save(ts_model, '../weights/model2.ts')
+    torch.jit.save(ts_model, '../weights/potato_model_202205311000.ts')
     # dump_torchscript_IR(ts_model, '../weights/ts')
 
 
