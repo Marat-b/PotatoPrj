@@ -15,8 +15,9 @@ import onnx
 
 
 def main():
-    weights_path = '../weights/potato_model_best_202205311000.pth'
+    # weights_path = '../weights/potato_model_best_202205311000.pth'
     # weights_path = '../weights/potato_model_final_202204221400.pth'
+    weights_path = '../weights/potato_model_202206021720.pth'
 
     # register_coco_instances(
     #     "potato_dataset_test", {},
@@ -83,7 +84,7 @@ def main():
     torch.onnx.export(
         traceable_model, (image,), '../weights/model_202205311000_ov12.onnx', opset_version=12,
         do_constant_folding=True, verbose=True
-        )
+    )
 
 
 if __name__ == '__main__':
