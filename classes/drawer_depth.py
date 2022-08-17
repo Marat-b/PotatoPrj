@@ -49,6 +49,17 @@ class Drawer:
         return self
 
     def outputs(self, img, outputs):
+        """
+        To draw on the image rectangles
+        Parameters
+        ----------
+        img : ndarray
+        outputs : [x1, y1, x2, y2, track_id, cls_id, mask]
+
+        Returns
+        -------
+
+        """
         image = np.array(img[:, :, :-1])
         # print(f'image.shape={image.shape}')
         # print(f'image={image}')
