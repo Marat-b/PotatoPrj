@@ -23,7 +23,7 @@ class TorchscriptDetection:
         self.model = torch.jit.load(path_inference)
         self.model.to(self.device)
 
-    def detect(self, image):
+    def detect(self, image, confidence=0.5):
         with torch.no_grad():
             out = self.model(
                      torch.as_tensor(image.astype('float32').transpose(2, 0, 1))
@@ -40,11 +40,12 @@ class TorchscriptDetection:
 
         for (box, _class, score, pr_mask) in zip(boxes, classes, scores, pr_masks):
             # print(box)
-            x0, y0, x1, y1 = box
-            bbox_xcycwh.append([(x1 + x0) / 2, (y1 + y0) / 2, (x1 - x0), (y1 - y0)])
-            cls_conf.append(score)
-            cls_ids.append(_class)
-            masks.append(pr_mask)
+            if score >= confidence:
+                x0, y0, x1, y1 = box
+                bbox_xcycwh.append([(x1 + x0) / 2, (y1 + y0) / 2, (x1 - x0), (y1 - y0)])
+                cls_conf.append(score)
+                cls_ids.append(_class)
+                masks.append(pr_mask)
 
         return np.array(bbox_xcycwh, dtype=np.float64), np.array(cls_conf), np.array(cls_ids), np.array(masks)
 

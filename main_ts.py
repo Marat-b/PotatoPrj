@@ -20,7 +20,10 @@ from classes.measurement import Measurement
 class Detector(object):
     def __init__(self, args):
         self.args = args
-        self.class_names = ['strong', 'sick', 'stone']
+        # self.class_names = ['strong', 'sick', 'stone']
+        self.class_names = ['strong', 'alternariosis', 'anthracnose', 'fomosis', 'fusarium', 'internalrot',
+                            'necrosis', 'phytophthorosis', 'pinkrot', 'scab', 'wetrot']
+        self.confidence = args.confidence
         self.min_confidence = args.min_conf
         use_cuda = bool(strtobool(self.args.use_cuda))
         if args.display:
@@ -63,10 +66,10 @@ class Detector(object):
             Measurement(3840, 120, 1.5)
         ) \
             .add_calculator(Calculator([['small', 0.0, 0.035], ['middle', 0.035, 0.08], ['big', 0.08, 1.0]])) \
-            .add_class_names(['strong', 'sick', 'black_stone'])
+            .add_class_names(self.class_names)
 
-        counter = int(self.fps / 2)
-        count = 0
+        # counter = int(self.fps / 2)
+        # count = 0
 
         for i in tqdm(range(self.num_frames)):
             if not self.vdo.grab():
@@ -75,8 +78,8 @@ class Detector(object):
             # if i % 2 == 0:
             #     count += 1
             #     continue
-            count = 0
-            bbox_xcycwh, cls_conf, cls_ids, masks = self.detectron2.detect(im)
+            # count = 0
+            bbox_xcycwh, cls_conf, cls_ids, masks = self.detectron2.detect(im, confidence=self.confidence)
             # print(f'len(cls_ids)={len(cls_ids)}, len(cls_conf)={len(cls_conf)}, len(masks)={len(masks)}')
 
             if len(bbox_xcycwh) > 0:
@@ -98,13 +101,14 @@ def parse_args():
     parser.add_argument("VIDEO_PATH", type=str)
     parser.add_argument("--deepsort_checkpoint", type=str, default="weights/ckpt.t7")
     parser.add_argument("--detectron2_checkpoint", type=str, default=None)
-    parser.add_argument("--max_dist", type=float, default=0.3)
+    parser.add_argument("--max_dist", type=float, default=0.3, help="Max distance, for Deepsort")
     parser.add_argument("--ignore_display", dest="display", action="store_false")
     parser.add_argument("--display_width", type=int, default=800)
     parser.add_argument("--display_height", type=int, default=600)
     parser.add_argument("--save_path", type=str, default="demo.avi")
     parser.add_argument("--use_cuda", type=str, default="True")
-    parser.add_argument("--min_conf", type=float, default=0.7)
+    parser.add_argument("--min_conf", type=float, default=0.7, help="Max confidence, for Deepsort")
+    parser.add_argument("--confidence", type=float, default=0.5, help="Confidence")
     return parser.parse_args()
 
 
