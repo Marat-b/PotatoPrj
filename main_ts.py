@@ -6,9 +6,9 @@ import cv2
 import torch
 from tqdm import tqdm
 
-from classes.calculator import Calculator
+from classes.calculator2 import Calculator2
 from classes.bbox import Bbox
-from classes.drawer import Drawer
+from classes.drawer2 import Drawer2
 from classes.entity import Entity
 from classes.identity import Identity
 from classes.mask import Mask
@@ -61,11 +61,11 @@ class Detector(object):
             print(exc_type, exc_value, exc_traceback)
 
     def detect(self):
-        drawer = Drawer()
+        drawer = Drawer2()
         drawer.add_bbox(Bbox()).add_identity(Identity()).add_entity(Entity()).add_mask(Mask()).add_measurement(
             Measurement(3840, 120, 1.5)
         ) \
-            .add_calculator(Calculator([['small', 0.0, 0.035], ['middle', 0.035, 0.08], ['big', 0.08, 1.0]])) \
+            .add_calculator(Calculator2([['small', 0.0, 0.035], ['middle', 0.035, 0.08], ['big', 0.08, 1.0]])) \
             .add_class_names(self.class_names)
 
         # counter = int(self.fps / 2)
@@ -79,6 +79,7 @@ class Detector(object):
             #     count += 1
             #     continue
             # count = 0
+            # im = im[:, :, [2, 0, 1]] # BGR to RGB
             bbox_xcycwh, cls_conf, cls_ids, masks = self.detectron2.detect(im, confidence=self.confidence)
             # print(f'len(cls_ids)={len(cls_ids)}, len(cls_conf)={len(cls_conf)}, len(masks)={len(masks)}')
 
@@ -86,7 +87,7 @@ class Detector(object):
                 outputs = self.deepsort.update(bbox_xcycwh, cls_conf, im, cls_ids, masks)
                 # print(f'outputs={outputs}')
                 if len(outputs) > 0:
-                    im = drawer.outputs(im, outputs)
+                    im = drawer.outputs2(im, outputs)[0]
 
             if self.args.display:
                 cv2.imshow("test", im)
