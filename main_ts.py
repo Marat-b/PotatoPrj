@@ -24,9 +24,11 @@ class Detector(object):
         self.class_names = ['strong', 'alternariosis', 'anthracnose', 'fomosis', 'fusarium', 'internalrot',
                             'necrosis', 'phytophthorosis', 'pinkrot', 'scab', 'wetrot']
         self.confidence = args.confidence
+        self.max_dist = args.max_dist
         self.min_confidence = args.min_conf
+        self.display = bool(strtobool(args.display))
         use_cuda = bool(strtobool(self.args.use_cuda))
-        if args.display:
+        if  self.display:
             cv2.namedWindow("test", cv2.WINDOW_NORMAL)
             cv2.resizeWindow("test", args.display_width, args.display_height)
 
@@ -36,7 +38,8 @@ class Detector(object):
             use_cuda=use_cuda
         )
 
-        self.deepsort = DeepSort(args.deepsort_checkpoint, min_confidence=self.min_confidence,  use_cuda=use_cuda)
+        self.deepsort = DeepSort(args.deepsort_checkpoint, max_dist=self.max_dist,
+        min_confidence=self.min_confidence,  use_cuda=use_cuda)
 
     def __enter__(self):
         assert os.path.isfile(self.args.VIDEO_PATH), "Error: path error"
@@ -48,7 +51,7 @@ class Detector(object):
 
         if self.args.save_path:
             fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-            self.output = cv2.VideoWriter(self.args.save_path, fourcc, 20, (self.im_width, self.im_height))
+            self.output = cv2.VideoWriter(self.args.save_path, fourcc, self.fps, (self.im_width, self.im_height))
 
         assert self.vdo.isOpened()
         return self
@@ -85,11 +88,12 @@ class Detector(object):
 
             if len(bbox_xcycwh) > 0:
                 outputs = self.deepsort.update(bbox_xcycwh, cls_conf, im, cls_ids, masks)
-                # print(f'outputs={outputs}')
+
                 if len(outputs) > 0:
+                    # print(f'outputs={outputs[:, :6]}')
                     im = drawer.outputs2(im, outputs)[0]
 
-            if self.args.display:
+            if self.display:
                 cv2.imshow("test", im)
                 cv2.waitKey(1)
 
@@ -103,12 +107,12 @@ def parse_args():
     parser.add_argument("--deepsort_checkpoint", type=str, default="weights/ckpt.t7")
     parser.add_argument("--detectron2_checkpoint", type=str, default=None)
     parser.add_argument("--max_dist", type=float, default=0.3, help="Max distance, for Deepsort")
-    parser.add_argument("--ignore_display", dest="display", action="store_false")
+    parser.add_argument("--min_conf", type=float, default=0.7, help="Min confidence, for Deepsort")
+    parser.add_argument("--display", dest="display", default="False")
     parser.add_argument("--display_width", type=int, default=800)
     parser.add_argument("--display_height", type=int, default=600)
-    parser.add_argument("--save_path", type=str, default="demo.avi")
+    parser.add_argument("--save_path", type=str, default="demo.mp4")
     parser.add_argument("--use_cuda", type=str, default="True")
-    parser.add_argument("--min_conf", type=float, default=0.7, help="Max confidence, for Deepsort")
     parser.add_argument("--confidence", type=float, default=0.5, help="Confidence")
     return parser.parse_args()
 

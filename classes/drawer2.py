@@ -43,7 +43,8 @@ class Drawer2(Drawer):
             self._calculator.add(self._identity[i], width)
             self._calculator.add_class(self._identity[i], self._entity[i])
             color = self._color_list[int(self._identity[i] % self._color_index)]
-            label = '{}-{:d} w={}m'.format(self._class_names[self._entity[i]], self._identity[i], str(width))
+            # label = '{}-{:d} w={}m'.format(self._class_names[self._entity[i]], self._identity[i], str(width))
+            label = '{:d}'.format(self._identity[i])
             t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN, 2, 2)[0]
             cv2.rectangle(image, (x1, y1), (x2, y2), color, 3)
             cv2.rectangle(image, (x1, y1), (x1 + t_size[0] + 3, y1 + t_size[1] + 4), color, -1)
