@@ -42,7 +42,8 @@ class TorchscriptDetection:
             # print(box)
             if score >= confidence:
                 x0, y0, x1, y1 = box
-                bbox_xcycwh.append([(x1 + x0) / 2, (y1 + y0) / 2, (x1 - x0), (y1 - y0)])
+                # bbox_xcycwh.append([(x1 + x0) / 2, (y1 + y0) / 2, (x1 - x0), (y1 - y0)])
+                bbox_xcycwh.append([x0, y0, (x1 - x0), (y1 - y0)])
                 cls_conf.append(score)
                 cls_ids.append(_class)
                 masks.append(pr_mask)

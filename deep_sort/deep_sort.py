@@ -1,6 +1,6 @@
 import numpy as np
 
-from .deep.feature_extractor import Extractor
+from .deep.feature_extractor import Extractor, FastReIDExtractor
 from .sort.nn_matching import NearestNeighborDistanceMetric
 from .sort.preprocessing import non_max_suppression
 from .sort.detection import Detection
@@ -10,24 +10,28 @@ __all__ = ['DeepSort']
 
 
 class DeepSort(object):
-    def __init__(self, model_path, max_dist=0.2, min_confidence=0.5,  use_cuda=True):
+    def __init__(self, model_path,model_config=None,  max_dist=0.2, min_confidence=0.5,  use_cuda=True):
         self.min_confidence = min_confidence
         self.nms_max_overlap = 1.0 # 1.0
 
-        self.extractor = Extractor(model_path, use_cuda=use_cuda)
+        if model_config is None:
+            self.extractor = Extractor(model_path, use_cuda=use_cuda)
+        else:
+            self.extractor = FastReIDExtractor(model_config, model_path, use_cuda=use_cuda)
 
         max_cosine_distance = max_dist
         nn_budget = 100
         metric = NearestNeighborDistanceMetric("cosine", max_cosine_distance, nn_budget)
         # metric = NearestNeighborDistanceMetric("euclidean", max_cosine_distance, nn_budget)
-        self.tracker = Tracker(metric)
+        self.tracker = Tracker(metric, max_age=100)
 
     def update(self, bbox_xywh, confidences, ori_img, cls_ids, masks):
         self.height, self.width = ori_img.shape[:2]
         # generate detections
         features = self._get_features(bbox_xywh, ori_img)
-        bbox_tlwh = self._xywh_to_tlwh(bbox_xywh)
-        detections = [Detection(bbox_tlwh[i], conf, features[i], cls_id, mask) for i, (conf, cls_id, mask) in enumerate(
+        # bbox_tlwh = self._xywh_to_tlwh(bbox_xywh)
+        # detections = [Detection(bbox_tlwh[i], conf, features[i], cls_id, mask) for i, (conf, cls_id, mask) in enumerate(
+        detections = [Detection(bbox_xywh[i], conf, features[i], cls_id, mask) for i, (conf, cls_id, mask) in enumerate(
             zip(
                 confidences,
                 cls_ids,

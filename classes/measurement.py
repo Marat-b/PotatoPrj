@@ -66,16 +66,21 @@ class Measurement:
         mask[mask > 0.9] = 1.0
         mask = mask.astype('uint8')
         f = np.argwhere(mask > 0)
-        f_max = np.argmax(f, axis=0)
-        bottom = f[f_max[0]]
-        right = f[f_max[1]]
-        f_min = np.argmin(f, axis=0)
-        top = np.array([f[f_min[0]][0], bottom[1]])
-        left = np.array([right[0], f[f_min[1]][1]])
-        width = calculate_distance(left, right)
-        height = calculate_distance(top, bottom)
-        length = width if width > height else height
-        return int((box_len * length) / 28)
+        if len(f)>0:
+            f_max = np.argmax(f, axis=0)
+            bottom = f[f_max[0]]
+            right = f[f_max[1]]
+            f_min = np.argmin(f, axis=0)
+            top = np.array([f[f_min[0]][0], bottom[1]])
+            left = np.array([right[0], f[f_min[1]][1]])
+            width = calculate_distance(left, right)
+            height = calculate_distance(top, bottom)
+            length = width if width > height else height
+            return int((box_len * length) / 28)
+        else:
+            print(f'mask={mask}')
+            print(f'f={f}')
+            return 0
 
     def get_width_meter(self, image_mask, box):
         """

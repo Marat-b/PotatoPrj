@@ -38,8 +38,17 @@ class Detector(object):
             use_cuda=use_cuda
         )
 
-        self.deepsort = DeepSort(args.deepsort_checkpoint, max_dist=self.max_dist,
-        min_confidence=self.min_confidence,  use_cuda=use_cuda)
+        if args.fastreid_config is None:
+            self.deepsort = DeepSort(
+                args.deepsort_checkpoint, max_dist=self.max_dist,
+                min_confidence=self.min_confidence, use_cuda=use_cuda
+                )
+        else:
+            print("There's fastreid")
+            self.deepsort = DeepSort(
+                args.fastreid_checkpoint, model_config=args.fastreid_config, max_dist=self.max_dist,
+                min_confidence=self.min_confidence, use_cuda=use_cuda
+            )
 
     def __enter__(self):
         assert os.path.isfile(self.args.VIDEO_PATH), "Error: path error"
@@ -114,6 +123,8 @@ def parse_args():
     parser.add_argument("--save_path", type=str, default="demo.mp4")
     parser.add_argument("--use_cuda", type=str, default="True")
     parser.add_argument("--confidence", type=float, default=0.5, help="Confidence")
+    parser.add_argument("--fastreid_config", dest="fastreid_config", default=None, help="FastReId Config")
+    parser.add_argument("--fastreid_checkpoint", type=str, default="weights/market_bot_R50.pth")
     return parser.parse_args()
 
 
