@@ -35,7 +35,7 @@ class Drawer2(Drawer):
         # len_bbox = len(self._bbox)
         # print(f'outputs[:, :4]={outputs[:, :4]}')
         # print(f'outputs[:, -1]={outputs[:, -1]}')
-        image = self.visualize_bw(image, outputs[:, :4], outputs[:, -1])
+        # image = self.visualize_bw(image, outputs[:, :4], outputs[:, -1]) # draw mask
         for i, box in enumerate(bboxes):
             x1, y1, x2, y2 = [int(j) for j in box]
             # print(f'x1={x1}, x2={x2}, y1={y1}, y2={y2}')
