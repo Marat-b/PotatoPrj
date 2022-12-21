@@ -5,6 +5,7 @@ from distutils.util import strtobool
 import cv2
 import torch
 from tqdm import tqdm
+import numpy as np
 
 from classes.calculator2 import Calculator2
 from classes.bbox import Bbox
@@ -87,6 +88,7 @@ class Detector(object):
             if not self.vdo.grab():
                 continue
             _, im = self.vdo.retrieve()
+            # image = self._mask(im)
             # if i % 2 == 0:
             #     count += 1
             #     continue
@@ -108,6 +110,15 @@ class Detector(object):
 
             if self.args.save_path:
                 self.output.write(im)
+
+    def _mask(self, frame):
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        lower = np.array([0, 30, 70])
+        upper = np.array([30, 255, 255])
+        mask = cv2.inRange(hsv, lower, upper)
+        image_new = cv2.bitwise_and(frame, frame, mask=mask)
+        return image_new
+
 
 
 def parse_args():
