@@ -2,8 +2,8 @@ from classes.calculator import Calculator
 
 
 class Calculator2(Calculator):
-    def __init__(self, metrics: []):
-        super().__init__(metrics)
+    def __init__(self, metrics: [], count_frames=0):
+        super().__init__(metrics, count_frames=count_frames)
         self.potato_class = {}
 
     def add_class(self, id_entity: str, class_number: int):

@@ -78,7 +78,8 @@ class Detector(object):
         drawer.add_bbox(Bbox()).add_identity(Identity()).add_entity(Entity()).add_mask(Mask()).add_measurement(
             Measurement(3840, 120, 1.5)
         ) \
-            .add_calculator(Calculator2([['small', 0.0, 0.035], ['middle', 0.035, 0.08], ['big', 0.08, 1.0]])) \
+            .add_calculator(Calculator2([['small', 0.0, 0.035], ['middle', 0.035, 0.08], ['big', 0.08, 1.0]],
+                                        count_frames=self.fps)) \
             .add_class_names(self.class_names)
 
         # counter = int(self.fps / 2)
