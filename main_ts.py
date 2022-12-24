@@ -82,19 +82,14 @@ class Detector(object):
                                         count_frames=self.fps)) \
             .add_class_names(self.class_names)
 
-        # counter = int(self.fps / 2)
-        # count = 0
+        item_sorted = None
+        class_sorted = None
 
         for i in tqdm(range(self.num_frames)):
             if not self.vdo.grab():
                 continue
             _, im = self.vdo.retrieve()
             # image = self._mask(im)
-            # if i % 2 == 0:
-            #     count += 1
-            #     continue
-            # count = 0
-            # im = im[:, :, [2, 0, 1]] # BGR to RGB
             bbox_xcycwh, cls_conf, cls_ids, masks = self.detectron2.detect(im, confidence=self.confidence)
             # print(f'len(cls_ids)={len(cls_ids)}, len(cls_conf)={len(cls_conf)}, len(masks)={len(masks)}')
 
@@ -103,7 +98,8 @@ class Detector(object):
 
                 if len(outputs) > 0:
                     # print(f'outputs={outputs[:, :6]}')
-                    im = drawer.outputs2(im, outputs)[0]
+                    im, item_sorted, class_sorted = drawer.outputs2(im, outputs)
+                    print(f'item_sorted={item_sorted}, class_sorted={class_sorted}')
 
             if self.display:
                 cv2.imshow("test", im)
@@ -111,6 +107,7 @@ class Detector(object):
 
             if self.args.save_path:
                 self.output.write(im)
+
 
     def _mask(self, frame):
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
